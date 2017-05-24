@@ -7,9 +7,12 @@ import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.annotations.Update;
 import org.apache.ibatis.annotations.UpdateProvider;
 import org.apache.ibatis.type.JdbcType;
+
+import java.util.List;
 
 public interface UserMapper {
     @Delete({
@@ -22,6 +25,9 @@ public interface UserMapper {
             "insert into t_user (id, name)",
             "values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR})"
     })
+    @SelectKey(
+            before = false, keyProperty = "id", resultType = Long.class, statement = "SELECT LAST_INSERT_ID AS id"
+    )
     int insert(User record);
 
     @InsertProvider(type = UserSqlProvider.class, method = "insertSelective")
@@ -38,6 +44,17 @@ public interface UserMapper {
             @Result(column = "name", property = "name", jdbcType = JdbcType.VARCHAR)
     })
     User selectByPrimaryKey(Long id);
+
+    @Select({
+            "select",
+            "id, name",
+            "from t_user"
+    })
+    @Results({
+            @Result(column = "id", property = "id", jdbcType = JdbcType.BIGINT, id = true),
+            @Result(column = "name", property = "name", jdbcType = JdbcType.VARCHAR)
+    })
+    List<User> selectAll();
 
     @UpdateProvider(type = UserSqlProvider.class, method = "updateByPrimaryKeySelective")
     int updateByPrimaryKeySelective(User record);
