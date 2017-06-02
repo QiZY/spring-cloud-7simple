@@ -3,6 +3,8 @@ package com.seven.cloud.ui.service;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.seven.cloud.ui.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -17,6 +19,9 @@ public class UserService {
     @Autowired
     RestTemplate restTemplate;
 
+    @Autowired
+    private LoadBalancerClient loadBalancerClient;
+
     //	 @Autowired
     //	 FeignUserService feignUserService;
 
@@ -24,14 +29,16 @@ public class UserService {
 
     @HystrixCommand(fallbackMethod = "fallbackSearchAll")
     public List<User> list() {
-        List<User> users = restTemplate.getForObject("http://" + SERVICE_NAME + "/user/list", List.class);
+//        List<User> users = restTemplate.getForObject("http://" + SERVICE_NAME + "/user/list", List.class);
+        ServiceInstance instance = loadBalancerClient.choose(SERVICE_NAME);
+        return (new RestTemplate()).getForObject(instance.getUri() + "/user/list", List.class);
         //return feignUserService.readUserInfo();
-        return users;
+//        return users;
     }
 
     private List<User> fallbackSearchAll() {
         System.out.println("HystrixCommand fallbackMethod handle!");
-        List<User> ls = new ArrayList<User>();
+        List<User> ls = new ArrayList<>();
         User user = new User();
         user.setId(1L);
         user.setName("TestHystrixCommand");
