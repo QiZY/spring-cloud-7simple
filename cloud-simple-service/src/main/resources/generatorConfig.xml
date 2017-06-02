@@ -48,7 +48,7 @@
             <property name="enableSubPackages" value="false"/>
         </javaClientGenerator>
         <!-- 指定数据库表 -->
-        <table tableName="t_user" domainObjectName="User" enableCountByExample="false" enableSelectByExample="false"
+        <table tableName="t_role" domainObjectName="Role" enableCountByExample="false" enableSelectByExample="false"
                enableUpdateByExample="false" enableDeleteByExample="false"></table>
     </context>
 </generatorConfiguration>
